@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<alt_config version="1.12" rd_mode="false" mtk_platform="false">
+
+	<alt_setting enable="true">
+		
+		<CPUInfo enable="true">
+			<CPUMaxFreqPath value="/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq" enable="true"/>
+			<CPUMinFreqPath value="/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq" enable="true"/>
+			
+			<CPU0ScaleFreqPath value="/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq" enable="true"/>
+			<CPU1ScaleFreqPath value="/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq" enable="true"/>
+			<CPU2ScaleFreqPath value="/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq" enable="true"/>
+			<CPU3ScaleFreqPath value="/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq" enable="true"/>
+			<CPU4ScaleFreqPath value="/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq" enable="true"/>
+			<CPU5ScaleFreqPath value="/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq" enable="true"/>
+		</CPUInfo>
+		
+		<BatteryInfo enable="true">
+			<CurrentPath value="/sys/class/power_supply/battery/current_now" chargingBase="1000"/>
+			<BatteryCapacityPath value="/sys/class/power_supply/battery/capacity" enable="true"/>
+			<BatteryVoltagePath value="/sys/class/power_supply/battery/voltage_now" base="1000" enable="true"/>
+			<BatteryTmpPath value="/sys/class/power_supply/battery/temp" base="10" enable="true"/>
+			<ChargingModePath value="/sys/class/power_supply/battery/charging_enabled" enable="true">
+				<ChargingEnable>1</ChargingEnable>
+				<ChargingDisable>0</ChargingDisable>
+			</ChargingModePath>
+					
+			<BatteryThreshold start="40" end="0" enable="true"/>
+			
+			<BatteryAfterTest enable="true">
+				<upperbound>95</upperbound>
+				<lowerbound>90</lowerbound>
+			</BatteryAfterTest>
+		</BatteryInfo>
+		
+		<ChartlogInterval enable="true">5</ChartlogInterval>
+		<RetestRebootRegion enable="true" maxRetestCnt="1"/>
+		
+	</alt_setting>
+
+	
+	<loop name="Temperature_Test" priority="10" cycle="1">
+		<SetChargingMode name="set_charging_mode" enable="true" priority="1" value="disable"/>
+	
+		<TPSelfTest name="tp_selftest" enable="true" priority="2" interval="2" period="2">
+			<TPPathWrite value="/sys/class/input/mouse0/device/test" data="0"/>
+			<TPPathRead  value="/sys/class/input/mouse0/device/test" data="0"/>
+			<RawdataPath>/data/TPRawdataFile</RawdataPath>
+		</TPSelfTest>
+	
+		<CPUMaxFreq name="cpu_max_freq" enable="true" thread="4" priority="4" cycle="1" interval="300"/>
+		
+		<TPSelfTest name="tp_selftest" enable="true" priority="6" interval="2" period="2">
+			<TPPathWrite value="/sys/class/input/mouse0/device/test" data="0"/>
+			<TPPathRead  value="/sys/class/input/mouse0/device/test" data="0"/>
+			<RawdataPath>/data/TPRawdataFile</RawdataPath>
+		</TPSelfTest>
+		
+		<SetChargingMode name="set_charging_mode" enable="true" priority="8" value="enable"/>
+	</loop>
+	
+	
+	<loop name="Current_Test" priority="30" cycle="1">
+		<SetChargingMode name="set_charging_mode" enable="true" priority="1" value="disable"/>
+	
+		<Delay name="delay" enable="true" priority="10" period="180"/>
+		
+		<Speaker name="speaker_mute" enable="true" volumeMode="mute" priority="25" period="180">
+			<Path value="/system/etc/997-23_5min.mp3"></Path>
+		</Speaker>
+		
+		<Video name="video" enable="true" volumeMode="mute" priority="85" period="180">
+			<VideoPath>/system/etc/white.mp4</VideoPath>
+		</Video>
+		
+		<Delay name="delay" enable="true" priority="90" period="180"/>
+		
+		<SetChargingMode name="set_charging_mode" enable="true" priority="92" value="enable"/>
+	</loop>
+
+	
+	<loop name="Charging_Test_2" priority="40" cycle="1">
+		<Charging name="charging" enable="true" priority="1" period="360"/>
+	</loop>
+	
+	
+	<loop name="Init_Test" priority="50" cycle="1">
+		<Reboot name="reboot" enable="true" priority="1" cycle="15" estimatetime="40"/>
+	</loop>
+
+
+	<loop name="Interference_Test" priority="60" cycle="1">
+		<CPUTmpCondition enable="false" name="cpu_tmp_cond" priority="1">
+			<Path value="/sys/class/thermal/thermal_zone7/temp" base="1"/>
+			<Range min="50" max="60"/>
+		</CPUTmpCondition>
+		
+		<loop priority="10" cycle="1">
+			<TPSelfTest name="tp_selftest" enable="true" priority="8" interval="2" period="2">
+				<TPPathWrite value="/sys/class/input/mouse0/device/test" data="0"/>
+				<TPPathRead  value="/sys/class/input/mouse0/device/test" data="0"/>
+				<RawdataPath>/data/TPRawdataFile</RawdataPath>
+			</TPSelfTest>
+			
+			<loop priority="20" cycle="1">
+				<Speaker name="speaker" enable="true" volumeMode="max" priority="2" period="600">
+					<Path value="/system/etc/997-23_5min.mp3"></Path>
+				</Speaker>
+				<MainMic name="main_mic" enable="true" priority="2" cycle="-1">
+					<Path value="/sdcard/Music/mainmic_rec.pcm"/>
+					<MaxRecordTime value="30"/>
+				</MainMic>
+				
+				<Receiver name="receiver" enable="true" priority="4" period="600">
+					<Path value="/system/etc/997-23_5min.mp3"></Path>
+				</Receiver>
+			</loop>
+			<RFMaxPower name="maxpower" enable="false" priority="20" cycle="-1">
+				<QXDMWorkAround enable="true"/>
+			</RFMaxPower>
+			
+			<TPSelfTest name="tp_selftest" enable="true" priority="22" interval="2" period="2">
+				<TPPathWrite value="/sys/class/input/mouse0/device/test" data="0"/>
+				<TPPathRead  value="/sys/class/input/mouse0/device/test" data="0"/>
+				<RawdataPath>/data/TPRawdataFile</RawdataPath>
+			</TPSelfTest>
+		</loop>
+		<CPUMath name="cpumath" enable="true" priority="10" thread="2" cycle="-1"/>
+		<Vibrator name="vibrator" enable="true" priority="10" cycle="-1"/>
+		<Wifi name="wifi" enable="true" priority="10" cycle="-1"/>
+		<Bluetooth name="BT" enable="true" priority="10" cycle="-1"/>
+	</loop>
+	
+	
+	<loop name="Interference_Test_2" priority="70" cycle="1">
+		<MainCameraVideo name="main_cam_video" enable="true" priority="6" period="600">
+			<RecordPath>/sdcard/Movies/main_cam_video.mp4</RecordPath>
+		</MainCameraVideo>
+		
+		<FrontCameraVideo name="front_cam_video" enable="true" priority="8" period="600">
+			<RecordPath>/sdcard/Movies/front_cam_video.mp4</RecordPath>
+		</FrontCameraVideo>
+	</loop>
+	<CPUMath name="cpumath" enable="true" priority="70" thread="2" cycle="-1"/>
+	<Vibrator name="vibrator" enable="true" priority="70" cycle="-1"/>
+	<Wifi name="wifi" enable="true" priority="70" cycle="-1"/>
+	<Bluetooth name="BT" enable="true" priority="70" cycle="-1"/>
+	<RFMaxPower name="maxpower" enable="false" priority="70" cycle="-1">
+		<QXDMWorkAround enable="true"/>
+	</RFMaxPower>
+	
+	<loop name="Compt_Test" priority="80" cycle="1">
+		<Accelerometer name="acc" enable="true" priority="10" period="60"/>
+		<CapSensor name="cap(proximity)" enable="true" priority="10" cycle="-1"/>
+		<Compass name="compass" enable="true" priority="10" cycle="-1"/>
+		<Gyroscope name="gyro" enable="true" priority="10" cycle="-1"/>
+		<LightSensor name="light" enable="true" priority="10" cycle="-1"/>
+		
+		<Wifi name="wifi" enable="true" priority="2" period="180"/>
+		<Bluetooth name="BT" enable="true" priority="2" cycle="-1"/>
+			
+		<LED name="led" enable="true" priority="4" period="60"/>
+		
+		<TPSelfTest name="tp_selftest" enable="true" priority="22" interval="2" period="2">
+			<TPPathWrite value="/sys/class/input/mouse0/device/test" data="0"/>
+			<TPPathRead  value="/sys/class/input/mouse0/device/test" data="0"/>
+			<RawdataPath>/data/TPRawdataFile</RawdataPath>
+		</TPSelfTest>
+	</loop>
+	
+	
+	<loop name="Sleep_Current_Test" priority="90" cycle="1">
+		<SetChargingMode name="set_charging_mode" enable="true" priority="1" value="disable"/>
+		
+		<SuspendResume name="spspend_resume" enable="true" priority="5" cycle="1" s_interval="300" r_interval="1"/>
+		
+		<SetChargingMode name="set_charging_mode" enable="true" priority="10" value="enable"/>
+	</loop>
+
+	
+</alt_config>

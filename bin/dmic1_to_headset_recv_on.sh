@@ -1,0 +1,1 @@
+setprop debug.sys.fqcaudio 11;sleep 1;
